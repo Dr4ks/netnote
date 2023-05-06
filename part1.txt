@@ -1,0 +1,243 @@
+How to change speed of Ethernet cable=>
+Example:
+Switch>enable 
+Switch#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#interface fastEthernet 0/3
+Switch(config-if)#speed 10
+
+
+How to change duplex type of Ethernet cable=>
+Example:
+Switch>enable 
+Switch#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#interface fastEthernet 0/4
+Switch(config-if)#duplex half  
+
+
+How to set up DNS Server=>
+1.İlk olaraq Server in daxilində Services hissəsindən DNS I on etmək lazımdır.
+2.Daha sonra record ları Add etmək lazımdır.Və change elədikdə Save etmək yadınızdan çıxmasın. 
+
+
+Make changes on your web server(HTTP)=>
+Əgər siz istəsəniz, web server inizdə change edəsiniz, bu zaman HTTP service in daxilinə gəlib index.html ı dəyişərək edə bilərsiniz.
+
+
+How to set up DHCP by GUİ=>
+1.Biz burada Server də DHCP service ini On edərək aktivləşdiririk.
+2.Daha sonra network address,subnet mask,dns ip address and default gateway i daxil edirik.
+
+
+How to set up access mode for one interface=>
+Example:
+Switch>enable 
+Switch#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#interface fastEthernet 0/3
+Switch(config-if)#switchport mode access
+Switch(config-if)#switchport access vlan 20   //20=>is number of vlan    
+
+
+How to set up trunk mode for one interface=>
+Example:
+Switch>enable 
+Switch#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#interface fastEthernet 0/3
+Switch(config-if)#switchport mode trunk
+Switch(config-if)#switchport trunk allowed vlan 10,20=>two different numbers of vlans     
+
+How to set up InterVLAN Routing=>
+Burada onu unutmayın ki, interface sonunda daha yaxşı classify etmək üçün .vlannumber qoymaq lazımdır.
+
+Commands:
+encapsulation dot1Q vlannumber
+ip address ipadresofpc(default gateway) subnetmask
+
+Example:
+Router>enable 
+Router #configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Router (config)#interface fastEthernet 0/3.40
+Router (config-subif)#encapsulation dot1Q 40
+Router (config-subif)#ip address 192.168.40.1 255.255.255.0
+
+
+How to set up third interface cable to Router(1841)=>
+3-cü interface i bağlamaq üçün isə biz Physical hissəsindən WIC-1ENET bölməsindən şəkli hər iki yerə qoşub edə bilərik
+
+
+How to set up InterVlan Routing for third cable(above one)=>
+Commands:
+interface fastEthernet rəqəm/rəqəm/rəqəm.vlannumber 
+encapsulation dot1Q vlannumber
+ip address ipadresofpc(default gtw) subnetmask
+
+Example:
+Router>enable 
+Router#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Router(config)#interface fastEthernet 0/1/3.40
+Router(config-subif)#encapsulation dot1Q 40		
+Router(config-subif)#ip address 192.168.40.1 255.255.255.0
+
+
+
+How to set up connection of devices which are from the different VLANs by using MultiLayer Switch=>
+Bunun adı Multilayer Switch dir hansı ki,həm Router qabiliyyəti var həm də Switch qabiliyyəti var.
+
+Commands:
+1.For each interface=>
+Switchport mode access
+Switchport access vlan number
+2.For each vlan=>
+interface vlan number
+ip address default gateway_of_network subnet mask
+3.Aşağıdakını mütləq yazın.
+Switch(config)#ip routing //if you don’t write this,connnection will not be
+
+
+Example:
+1-ci mərhələ:
+Switch>enable 
+Switch#configure terminal 
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#switchport mode access 
+Switch(config-if)#switchport access vlan 10
+Switch(config-if)#exit
+Switch(config)#interface fastEthernet 0/2
+Switch(config-if)#switchport mode access 
+Switch(config-if)#switchport access vlan 20
+Switch(config-if)#exit
+
+2-ci mərhələ:
+Switch>enable 
+Switch#configure terminal 
+Switch(config)#interface vlan 10
+Switch(config-if)#ip address 192.168.1.1 255.255.255.0 //default gateway
+Switch(config-if)#exit
+Switch(config)#interface vlan 20
+Switch(config-if)#ip address 172.16.1.1 255.255.255.0 //defualt gateway
+Switch(config-if)#exit
+
+3-cü mərhələ:
+Switch(config)#ip routing //if you don’t write this,connnection will not be
+
+
+How to set up Port Channel for interfaces(İki Switch arasında one or more interface yerləşir)=>
+First Rule=>Birinci olaraq Configure Mode da biz Switch lərə interface port-channel number yazmalıyıq.
+Belə ki,burada olan number digər Switch lərdə də eyni olmalıdır.
+Second Rule=>Yuxarıdakı prosesdən sonra Switch lər arasında olan Cabel lərin (yəni inteface lərin) hamısına channel-group number mode active yazmalıyıq.
+
+Example:
+Switch>enable 
+Switch#configure terminal 
+Switch(config)#interface port-channel 1
+Switch(config-if)#exit
+
+Switch>enable 
+Switch#configure terminal 
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#channel-group 1 mode active 
+
+
+How to activate trunk mode for interface of Port Channel=>
+1.Burada isə biz normal necə Trunk Mode edirdiksə onu port-channel in daxilinə yazırıq.
+2.Yuxarıdakı prosesdən sonra Switch lər arasında olan Cabel lərin (yəni inteface lərin) hamısına channel-group number mode active yazmalıyıq.
+
+Example:
+Switch>enable 
+Switch#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#interface port-channel 1
+Switch(config-if)#switchport trunk mode
+Switch(config-if)#switchport trunk allowed vlan 10,20,30   
+
+Switch(config)#interface range fastEthernet 0/1-3
+Switch(config-if-range)#channel-group 1 mode active
+
+
+How to set up DHCP on Router=>
+1.Bunun üçün biz Router un CLİ sinə daxil olub aşağıdakı şəkildə DHCP Pool yaradıb onun daxilinə network address(also subnet),default gateway,dns server’s ip lərini daxil edəciyik.
+Router>enable 
+Router#configure terminal 
+Router(config)#ip dhcp pool 1
+Router(dhcp-config)#network 192.168.1.0 255.255.255.0   //network addres,subnet mask
+Router(dhcp-config)#default-router 192.168.1.1   //default gateway’s ip address
+Router(dhcp-config)#dns-server 8.8.8.8    //dns server’s ip address
+
+Reminder! Burada DHCP üçün excluded-address i unutmayın.Belə ki, yaradılan DHCP də istifadə olunan default gateway’s ip address i DHCP dən istifadə edən device lara assign olumasın deyə aşağıdakını mütləq etməliyik.
+Router>enable 
+Router#configure terminal 
+Router(config)#ip dhcp excluded-address 192.168.1.1
+
+2.Daha sonra Router un bunu device lara paylanması üçün, Router un Switch lə arasında olan interface in daxilinə DHCP nin default gateway ini subnet mask ı ilə daxil etməliyik.
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 192.168.1.1 255.255.255.0
+
+Reminder! Bunu yadda saxlayın ki DHCP pool larda Default Gateway in IP Address I onun Network and Broadcast range I arasında olmalıdır.
+
+How to set up DHCP when Subnetting and InterVLAN Routing happens=>
+1.Bunun üçün ilk öncə Subnetting i vərəqdə yerinə yetirib daha sonra subnetwork ları  paylaşmaq üçün mark etmək lazımdır.
+2.Subnetting dən sonra, alınan network address lərdən istifadə edərək DHCP pool lar yaradıb daxilinə network address(also subnet mask),default gateway’s ip,dns server’s ip address yazmaq lazım olacaqdır.
+Həmçinin exluded-address ləri də unutmayın.
+3.Daha sonra hər VLAN üçün İnterVlan Routing edirik və İP Address yerinə isə hər DHCP pool dakı default gateway ləri daxil etmək lazımdır.
+
+Reminder! Bunu yadda saxlayın ki DHCP pool larda Default Gateway in IP Address I onun Network and Broadcast range I arasında olmalıdır.
+
+Using ip route commands on routers=>
+Burada ən əsasda budur ki,Router lar Network Address ləri tanımalıdırlar.Bu tanımanı etmək üçün isə biz İP ROUTE funksiyasından istifadə edəciyik hansı ki,Configure Mode da yazırıq.Bir növü bu command la bütün Network ləri (except neighbour’s) i introduce etmək lazımdır.
+
+Commands:
+ip route network subnet interfaceipofneighbour
+
+Example:
+Router(config)#ip route 172.16.1.0 255.255.255.0 10.0.0.2 
+
+Reminder! İP ROUTE yazmağa ehtiyac olmayan Network Address lər həmin Router in yanındakılardır.
+
+How to set up STP(3 dənə Switch olur)=>
+Commands=>
+1.For each VLAN,we have to introduce other VLANs=>vlan number
+vlan numberofothers
+2.spanning-tree vlan number priority 4096 (for each Switch)
+
+Example: Bunu each Switch üçün etməliyik.
+Switch(config)#vlan 10
+Switch(config-vlan)#vlan 20
+Switch(config-vlan)#vlan 30
+Switch(config)#spanning-tree vlan 10 priority 4096
+
+
+How to configure OSPF to Router=>
+Commands:
+1.Belə ki,bundan istifadə etmək üçün biz ilk öncə Router in yanında olan Network IP Address lərini eləcədə onların Wildcard Subnet lərini bilməliyik.
+2.Bu command ı yazmaq üçün ilk öncə Configure Mode da router ospf 1 yazmaq lazımdı(burada əksər hallarda bir olur).
+3.Daha sonra isə network ipaddressofnetwork wildcardsubnetofnetwork area 0 (burada da əksər hallarda sıfır olur).
+
+Example:
+Switch>enable 
+Switch#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Switch(config)#router ospf 1
+Switch(config-router)#network 192.168.1.0 0.0.0.255 area 0
+
+
+How to set up LoopBack=>
+1.Bunun üçün biz Configure Mode da interface Loopback 0 (əsasən sıfır olur) yazırıq.Daha sonra ip address ipofloopback 255.255.255.255 şəklində daxil edirik.
+Router#configure terminal 
+Enter configuration commands, one per line. End with CNTL/Z.
+Router(config)#interface Loopback 0
+Router(config-if)#ip address 10.0.1.1 255.255.255.255
+
+
+2.Amma biz Loopback dən istifadə etdikdə bunu mütləq OSPF ə daxil etməliyik.
+Və daxil edən zaman digərlərindən fərqli olaraq təkcə Loopback ın Network IP Address ini və Wilcard Subnet ini yox,oraya həmdə Router-id kimi əlavə edirik.
+Router>enable 
+Router#configure terminal
+Enter configuration commands, one per line. End with CNTL/Z.
+Router(config)#router ospf 1
+Router(config-router)#network 10.0.1.1 0.0.0.0 area 0
+Router(config-router)#router-id 10.0.1.1 

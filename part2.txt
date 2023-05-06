@@ -1,0 +1,446 @@
+How to add password to hardware’s CLI (Switch or Router)=>
+Bunun üçün config mode da aşağıdakı command ları yazmalıyıq.Bu ən çox console port of Switch or Router a refer edir.
+
+Commands:
+
+line con 0
+password cisco
+login
+
+Example:
+Router>enable 
+Router#configure terminal 
+Router(config)#line con 0
+Router(config-line)#password sahib
+Router(config-line)#login
+Router(config-line)#exit
+Router(config)#exit
+Router#exit
+
+How to add username and password to hardware’s CLI (Switch or Router)=>
+Bunun üçün config mode da aşağıdakı command ları yazmalıyıq.Bu ən çox console port of Switch or Router a refer edir.
+Commands:
+
+username user password pass
+line con 0
+login local
+
+Example:
+Router>enable 
+Router#configure terminal 
+Router(config)#username sahib password sahib
+Router(config)#line con 0
+Router(config-line)#login local
+Router(config-line)#exit
+Router(config)#exit
+Router#exit
+
+
+How to put password of 'enable' feature of hardware’s CLI:
+
+Commands:
+enable password pass
+
+Example:
+Router>enable 
+Router#configure terminal 
+Router(config)#enable password sahib
+Router(config)#exit
+Router#exit
+
+Reminder! Biz əgər yuxarıdakı kimi enable ı password a salmasaq, biz digər device lardan ssh ilə daxil ola bilməyəcəyik, buna görə də yuxarıdakını mütləq etməliyik.
+
+
+How to activate telnet service=>
+Burada aşağıda siz n in yerinə number yaza bilərsiniz hansı ki, burada siz əslind range i göstərmiş olursunuz.Əgər n=4 olarsa (0 4), bu zaman sizin telnet service inizə eyni vaxtda maximum 5 device qoşula bilər deməkdir.
+Commands:
+
+line vty 0 n
+login local
+
+
+Example:
+Router#configure terminal 
+Router(config)#line vty 0 6  //max 7 devices can connect to Router at the same time
+Router(config-line)#login local
+
+Reminder! Yuxarıda yazılmış login local isə username and password un telnet ə qoşulan device lar üçündə authenticate edilməsi deməkdir.
+
+
+How to make restrictions to access to hardware's CLI=>
+Bununla yanaşı biz yuxarıdakı şəkildə line vty 0 n dən istifadə edəndən sonra CLİ də hardware connections üçün restrict qoya bilərik.
+Belə ki, əgər connection ının ancaq ssh üçün olmasını istəsək,aşağıdakı command ı daxil etməliyik.
+
+Commands=>Burada ssh ın yerinə ? qoysanız, başqa nəyə restriction qoya bilərsiz, onu görəcəksiz.
+
+transport input ssh
+
+
+How to configure SSH on Router=>
+Burada iki mərhələli olacaqdır.Bunun üçün aşağıdakı command lara diqqət yetirin.
+
+Commands=>
+1.
+line vty 0 n
+transport input ssh      //only ssh is allowed
+login local
+
+Reminder! Yuxarıda yazılmış login local isə username and password un ssh ə qoşulan device lar üçündə authenticate edilməsi deməkdir.
+
+2.
+hostname host_name
+ip domain-name cisco
+crypto key generate rsa
+1024
+
+
+Example:
+Router#configure terminal 
+Router(config)#line vty 0 4
+Router(config-line)#transport input ssh 
+Router(config-line)#login local
+Router(config-line)#exit
+Router(config)#hostname sahib
+sahib(config)#ip domain-name cisco
+sahib(config)#crypto key generate rsa 
+How many bits in the modulus [512]: 1024
+
+Let's access to router
+C:\>ssh -l sahib 192.168.1.1
+Password:  (burada pass=sahib daxil edərək access edirik)
+
+sahib>enable 
+Password:  (burada pass=sahib daxil edərək access edirik)
+sahib#
+
+Reminder! Birdəki yuxarıdakı İP başqa da ola bilər bir Router a access etmək üçün.
+Buna görə həmin Router un interface lərində olan istənilən İP ni yazaraq həmin Router a access edirik.
+
+How to keep local passwords as encrypted=>
+
+Example:
+Router#configure terminal 
+Router(config)#service password-encryption
+
+
+How to configure SSH on Switch=>
+
+Commands:
+
+1.
+line vty 0 n
+transport input ssh      //only ssh is allowed
+login local
+
+Reminder! Yuxarıda yazılmış login local isə username and password un ssh ə qoşulan device lar üçündə authenticate edilməsi deməkdir.
+
+2.
+hostname host
+ip domain-name cisco
+crypto key generate rsa
+1024
+
+
+3.Ən əsası burada İP Address i daxil etməliyik buna görə bir VLAN a access edib oraya daxil etməliyik.
+interface vlan_number
+ip address ipadress subnetmask
+no shutdown
+
+
+Example:
+Switch>enable 
+Switch#configure terminal 
+Switch(config)#username switch1 password switch1
+Switch(config)#line con 0
+Switch(config-line)#login local
+Switch(config-line)#exit
+Switch(config)#line vty 0 4
+Switch(config-line)#transport input ssh 
+Switch(config-line)#login local
+Switch(config-line)#exit
+Switch(config)#hostname switch1
+switch1(config)#ip domain-name cisco
+switch1(config)#crypto key generate rsa 
+The name for the keys will be: switch1.cisco
+
+How many bits in the modulus [512]: 1024
+
+switch1(config)#interface vlan 1
+switch1(config-if)#ip address 192.168.1.2 255.255.255.0
+switch1(config-if)#no shutdown 
+switch1(config-if)#exit
+switch1(config)#
+
+
+
+Gəlin check edək.Bunun üçün eyni network da olan hər hansı bir device ı seçək.
+C:\>ssh -l switch1 192.168.1.2
+
+Password:
+
+
+How to make secure one port of Switch statically=>
+
+Commands:Bunun üçün bir interface ə (port) a daxil olub edirik.
+switchport port-security mac-address mac
+
+Example:
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#switchport port-security mac-address 000c.8576.89c3
+
+
+How to make sticky our MAC Table of Switch=>
+Biz bunu Switch imizdə security purposes üçün istifadə edirik hansı ki, bunun nəticəsində Switch restart olunsa belə, MAC Address lər silinmir, yerində qalır.
+Və burada MAC Address lər dynamically add olunur.
+
+Commands=>Bunun üçün yenə Switch in hər hansı bir interface (port) una access edib daha sonra aşağıdakı command ı yazırıq.
+
+switchport port-security mac-address sticky
+
+Example:
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#switchport port-security mac-address sticky
+
+
+How to specify max number of devices for one port on Switch=>
+Bunun məqsədi Switch in bir port una maximum neçə device qoşula bilər deməkdir.
+
+Commands=>
+switchport port-security maximum number
+
+Example:
+Switch(config)#interface fastEthernet 0/1
+Switch(config-if)#switchport port-security maximum 8
+
+Reminder! Biz port-security ilə bağlı elədiyimiz decision lara baxmaq üçün show port-security ini yazmalıyıq.
+
+How to specify violation of port-security=>
+Bunun üçün aşağıda sizin 3 müxtəlif mode larınız vardır.
+
+shutdown=>Bu configure olunanda, port-security tətbiq olunmuş interface avtomatik olaraq shutdown olur.
+
+protect=>Bu configure olunanda, violation edən device digər device lara ping ata bilmir, çünki həmin device lar protect mode da olurlar.
+
+prevent=>Buda az çox yuxarıdakı ilə eynidir.
+
+
+Example:
+Switch(config)#interface fastEthernet 0/2
+Switch(config-if)#switchport port-security violation ?
+  protect   Security violation protect mode
+  restrict  Security violation restrict mode
+  shutdown  Security violation shutdown mode
+
+
+How to create VPN=>Biz VPN qurmaq üçün sırf different network a ehtiyacımız vardır.
+Bunun üçün aşağıdakı command ları etməliyik.
+
+Commands:
+1.Biz bununla VPN tunnel inin config inə daxil oluruq.
+interface Tunnel1
+
+2.İndi isə VPN nin daxilində config imizi edək.Aşağıda 3 fərqli şey edirik
+ip address ipaddress subnetmask    #ip belongs to VPN network
+tunnel source interface_name  #bu interface VPN ə tərəf olandır(local olan yox)
+tunnel destination ipaddressofinterface  #bu destined router un source router a tərəf olan interfaceinin İP address idir.
+
+3.Ən sonda isə biz ip route dan connection ını static əlavə etməliyik.Çünki başqa network lar görməsin deyə.
+ip route destination_network_address subnet_mask ipaddressofvpnnetwork
+
+Example:
+Router0=>
+Router(config)#interface Tunnel1
+Router(config-if)#ip address 192.168.1.1 255.255.255.0
+Router(config-if)#tunnel source fastEthernet 0/1
+Router(config-if)#tunnel destination 10.1.0.6
+Router(config-if)#exit
+Router(config)#ip route 172.16.1.128 255.255.255.128 192.168.1.2
+
+Router2=>
+Router(config)#interface Tunnel1
+Router(config-if)#ip address 192.168.1.2 255.255.255.0
+Router(config-if)#tunnel source fastEthernet 0/0
+Router(config-if)#tunnel destination 10.1.0.1
+Router(config-if)#exit
+Router(config)#ip route 172.16.1.0 255.255.255.128 192.168.1.1
+
+Reminder! 3-cü qaydada deyildiyi kimi, siz routing i mütləq static verməlisiniz yəni (ip route) dan istifadə etməlisiniz.
+Bəzən çaşıb OSPF istifadə edənlər olur.
+
+How to configure HSRP(Hot Standby Router Protocol)=>Bunun mənası iki Router un bir local network a routed olunması sayəsində əgər Router lardan biri down olarsa, digərilə getməsi üçündür.
+Amma hər ikisi işlədiyi halda hansında priority çox olarsa, özünə o Path i seçəcəkdir.
+
+Commands:
+standby 1 ip virtualip
+standby 1 priority priority_number
+
+Example:
+Router1=>
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#standby 1 ip 172.16.1.133
+Router(config-if)#standby 1 priority 120
+
+Router0=>
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#standby 1 ip 172.16.1.133
+Router(config-if)#standby 1 priority 100
+
+
+Reminder! Bunuda unutmayın ki, virtualip address imiz hansı tərəfə HSRP config ediriksə, həmin tərəfin network unda olmalı ,
+yəni eyni subnet də olmalıdırlar.
+
+Reminder! Virtualİp needs to be default-gateway of network
+
+
+How to configure access_list=>Belə ki, ilk öncə biz aşağıdakı müəyyən command ları daxil etməliyik.Amma burada diqqət edəciyimiz şey static bir İP Address i mi yoxsa müəyyən network range ini block or permit edəciyik.
+Belə ki, sadəcə fərq budur ki, network range olan zaman biz burada Wildcard Mask ını daxil edəciyik.
+
+Commands=>
+1.
+access-list (1-99 | 1300-1999) (permit | deny) static_ip  (statically checked ip)
+access-list (1-99 | 1300-1999) (permit | deny) network_ip wildcard_mask  (checked network’range)
+
+2.Daha sonra yuxarıdakı rule ları yazdıqdan sonra, biz interface lərə görə onları activate etməliyik.
+ip access-group (1-99 | 1300-1999) (in | out)
+
+Məsələn:
+1.
+Router(config)#access-list 1 deny 10.1.1.0 0.0.0.127
+
+2.
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip access-group 1 in
+
+
+
+Reminder! Yuxarıda 2-ci command hissəsində olan in | out un mənası Device a gələn(in) və gedən(out) packet ləri check etmək üçündür.
+Reminder! Orada deny edəndə permit any yazmağın yəni qalanlarına icazə verməyindir.Bunu yazmaq çox lazım olur.
+
+
+How to configure extended access_list=>Belə ki, ilk öncə biz aşağıdakı müəyyən command ları daxil etməliyik.Amma burada diqqət edəciyimiz şey static bir İP Address i mi yoxsa müəyyən network range ini block or permit edəciyik.
+Belə ki, sadəcə fərq budur ki, network range olan zaman biz burada Wildcard Mask ını daxil edəciyik.
+
+Commands=>
+1.First of all you need to enter to extended access list
+ip access-list extended nameofspec
+
+2.
+(permit | deny) (tcp | udp) network_ip wildcard_mask host static_ip  (statically checked ip)
+(permit | deny) (tcp | udp) network_ip wildcard_mask network_ip wildcard_mask  (checked network’range)
+
+
+Reminder! Burada birinci daxil olunan ip lər source_ip amma ikinci daxil olunan ip lər destination_ip lər olaraq adlanır.
+Həmçinin burada yazılan rule ların sonunda siz eq(equal) yazmaqla, port number or service i specify edirsiniz.
+
+3.Daha sonra yuxarıdakı rule ları yazdıqdan sonra, biz interface lərə görə onları activate etməliyik.
+ip access-group nameofspec (in | out)
+
+
+Məsələn:
+1.
+Router(config)# ip access-list extended 101
+2.
+Router(config-ext-nacl)#deny tcp host 172.16.3.10 172.16.1.0 0.0.0.255 eq ftp
+Router(config-ext-nacl)#deny tcp host 172.16.2.10 host 172.16.1.100 eq www
+Router(config-ext-nacl)#permit ip any any  #bunu yazmaq çox məsləhətlidir.
+3.
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#ip access-group 101 in
+
+Reminder! Rule ları specify edəndə daha clear etmək üçün permit ip any any etmək yaxşı olar.
+
+
+How to add ICMP packets to access list=>Belə ki, burada biz İCMP protocol unun packet lərini access-list dən keçirərək yoxlayacıyıq.
+
+Commands=>
+1.
+access-list nameofspec (deny | permit) icmp network_ip wildcard_mask network_ip wildcard_mask (echo-reply | echo)
+
+2.Daha sonra siz bu rule ları activate etmək üçün interface ə daxil etməlisiniz.
+ip access-group nameofspec (in | out)
+
+
+Məsələn:
+Router(config)#access-list 100 deny icmp 172.16.1.0 0.0.0.255 172.16.3.0 0.0.0.255 echo-reply 
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip access-group 100 in
+
+
+Reminder! Rule ları specify edəndə daha clear etmək üçün permit ip any any etmək yaxşı olar.
+
+
+How to configure static NAT(Network Address Translation)=>
+1.İlk öncə biz private network umuz olan interface ə daxil olub həmin network un DF sini daxil etdikdən sonra, private olduğunu göstərmək üçün inside yazmalıyıq.
+
+Commands:
+Ip address ip subnet     #df
+ip nat inside
+
+2.Daha sonra biz public network umuz olan interface ə daxil olub həmin network un DF sini daxil etdikdən sonra, public olduğunu göstərmək üçün outside yazmalıyıq.
+
+Commands:
+Ip address ip subnet     #df
+ip nat outside
+
+
+3.Sonda isə biz bunun üçün config mode da ip nat inside source static [private ip] [public ip] yazmaqla yerinə yetirilir.Bu yazdığımız config də olan private and public ip lər xüsusi bir device üçündür
+
+Commands:
+ip nat inside source static [private_ip] [public_ip]
+
+
+
+Məsələn: Router0 nun config i
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#ip address 10.1.1.13 255.255.255.0
+Router(config-if)#no shutdown 
+Router(config-if)#ip nat inside
+
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#ip address 200.1.1.251 255.255.255.0
+Router(config-if)#no shutdown 
+Router(config-if)#ip nat outside
+
+Router(config)#ip nat inside source static 10.1.1.1 200.1.1.1
+Router(config)#ip nat inside source static 10.1.1.2 200.1.1.2
+
+
+How to look at nat statistics and translations=>
+Commands:
+show ip nat statistics
+show ip nat translations
+
+
+How to configure dynamic NAT(Network Address Translation)=>
+1.İlk öncə biz private network umuz olan interface ə daxil olub həmin network un DF sini daxil etdikdən sonra, private olduğunu göstərmək üçün inside yazmalıyıq.
+
+Commands:
+Ip address ip subnet     #df
+ip nat inside
+
+2.Daha sonra biz public network umuz olan interface ə daxil olub həmin network un DF sini daxil etdikdən sonra, public olduğunu göstərmək üçün outside yazmalıyıq.
+
+Commands:
+Ip address ip subnet     #df
+ip nat outside
+3.Daha sonra isə biz Router da public tərəfə olan interface i overloading də istifadə edərək, NAT olmasını istədiyimiz device ların ip ləri permit etdikdən sonra dynamic nat hazır olacaqdır.
+
+Commands:
+ip nat inside source list 1 interface [interface_public] overload
+access-list 1 permit host ip_of_device
+
+
+Məsələn:
+Router(config)#interface fastEthernet 0/0
+Router(config-if)#no shutdown 
+Router(config-if)#ip address 10.1.1.13 255.255.255.0
+Router(config-if)#ip nat inside
+
+Router(config)#interface fastEthernet 0/1
+Router(config-if)#no shutdown 
+Router(config-if)#ip address 200.1.1.149 255.255.255.0
+Router(config-if)#ip nat outside
+
+Router(config)#ip nat inside source list 1 interface fastEthernet 0/1 overload 
+Router(config)#access-list 1 permit host 10.1.1.1
+Router(config)#access-list 1 permit host 10.1.1.2
